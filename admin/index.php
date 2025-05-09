@@ -3,7 +3,8 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
-$articles = getArticles();
+$search = isset($_GET['search']) ? $_GET['search'] : null;
+$articles = getArticles(null, $search);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -96,6 +97,18 @@ $articles = getArticles();
             <section class="content">
                 <div class="container-fluid">
                     <div class="card">
+                        <div class="card-header">
+                            <form method="GET" class="form-inline">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control" placeholder="Cari artikel..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search"></i> Cari
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">

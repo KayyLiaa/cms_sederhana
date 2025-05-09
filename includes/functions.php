@@ -13,19 +13,33 @@ function sanitize($data) {
     return mysqli_real_escape_string($conn, htmlspecialchars(trim($data)));
 }
 
-function getCategories() {
+function getCategories($search = null) {
     global $conn;
-    $query = "SELECT * FROM categories ORDER BY name ASC";
+    $query = "SELECT * FROM categories WHERE 1=1";
+    
+    if ($search) {
+        $search = sanitize($search);
+        $query .= " AND name LIKE '%$search%'";
+    }
+    
+    $query .= " ORDER BY name ASC";
     $result = mysqli_query($conn, $query);
     return $result;
 }
 
-function getArticles($limit = null) {
+function getArticles($limit = null, $search = null) {
     global $conn;
     $query = "SELECT a.*, c.name as category_name 
               FROM articles a 
               LEFT JOIN categories c ON a.category_id = c.id 
-              ORDER BY a.created_at DESC";
+              WHERE 1=1";
+    
+    if ($search) {
+        $search = sanitize($search);
+        $query .= " AND (a.title LIKE '%$search%' OR a.content LIKE '%$search%' OR c.name LIKE '%$search%')";
+    }
+    
+    $query .= " ORDER BY a.created_at DESC";
     
     if ($limit) {
         $query .= " LIMIT " . (int)$limit;

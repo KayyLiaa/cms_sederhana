@@ -3,6 +3,8 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
+$search = isset($_GET['search']) ? $_GET['search'] : null;
+
 if (isset($_POST['submit'])) {
     $name = sanitize($_POST['name']);
     
@@ -16,7 +18,7 @@ if (isset($_POST['submit'])) {
     }
 }
 
-$categories = getCategories();
+$categories = getCategories($search);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -154,6 +156,18 @@ $categories = getCategories();
                             <div class="card">
                                 <div class="card-header">
                                     <h3 class="card-title">Daftar Kategori</h3>
+                                    <div class="card-tools">
+                                        <form method="GET" class="form-inline">
+                                            <div class="input-group">
+                                                <input type="text" name="search" class="form-control" placeholder="Cari kategori..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                                                <div class="input-group-append">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-search"></i> Cari
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
