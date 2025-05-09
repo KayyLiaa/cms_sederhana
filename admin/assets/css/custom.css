@@ -1,0 +1,128 @@
+/* Custom Color Scheme */
+:root {
+    --primary-color: #FFD700; /* Kuning */
+    --secondary-color: #808080; /* Abu-abu */
+    --light-color: #FFFFFF; /* Putih */
+    --dark-color: #333333; /* Abu-abu gelap */
+}
+
+/* Navbar */
+.navbar-light {
+    background-color: var(--light-color) !important;
+    border-bottom: 1px solid var(--secondary-color);
+}
+
+/* Sidebar */
+.sidebar-dark-primary {
+    background-color: var(--dark-color) !important;
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: var(--primary-color) !important;
+    color: var(--dark-color) !important;
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link:hover {
+    background-color: var(--secondary-color) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--dark-color) !important;
+}
+
+.btn-primary:hover {
+    background-color: #FFC107 !important;
+    border-color: #FFC107 !important;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+}
+
+.btn-info {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+/* Cards */
+.card {
+    border-color: var(--secondary-color) !important;
+}
+
+.card-header {
+    background-color: var(--light-color) !important;
+    border-bottom: 1px solid var(--secondary-color) !important;
+}
+
+/* Tables */
+.table-bordered {
+    border-color: var(--secondary-color) !important;
+}
+
+.table-bordered td, .table-bordered th {
+    border-color: var(--secondary-color) !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(128, 128, 128, 0.05) !important;
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25) !important;
+}
+
+/* Alerts */
+.alert-success {
+    background-color: #d4edda !important;
+    border-color: #c3e6cb !important;
+    color: #155724 !important;
+}
+
+.alert-danger {
+    background-color: #f8d7da !important;
+    border-color: #f5c6cb !important;
+    color: #721c24 !important;
+}
+
+/* Footer */
+.main-footer {
+    background-color: var(--light-color) !important;
+    border-top: 1px solid var(--secondary-color) !important;
+}
+
+/* Content Header */
+.content-header {
+    background-color: var(--light-color) !important;
+}
+
+/* Links */
+a {
+    color: var(--primary-color) !important;
+}
+
+a:hover {
+    color: #FFC107 !important;
+}
+
+/* Brand */
+.brand-link {
+    background-color: var(--dark-color) !important;
+    color: var(--light-color) !important;
+}
+
+/* Active Menu Item */
+.nav-sidebar .nav-item .nav-link.active {
+    background-color: var(--primary-color) !important;
+    color: var(--dark-color) !important;
+} 
