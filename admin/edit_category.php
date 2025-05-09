@@ -3,14 +3,33 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
-$articles = getArticles();
+$id = (int)$_GET['id'];
+$category = getCategory($id);
+
+if (!$category) {
+    header("Location: categories.php?error=not_found");
+    exit();
+}
+
+if (isset($_POST['submit'])) {
+    $name = sanitize($_POST['name']);
+    
+    $query = "UPDATE categories SET name = '$name' WHERE id = $id";
+    
+    if (mysqli_query($conn, $query)) {
+        header("Location: categories.php?success=1");
+        exit();
+    } else {
+        $error = "Gagal mengupdate kategori: " . mysqli_error($conn);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard Admin - CMS Sederhana</title>
+    <title>Edit Kategori - CMS Sederhana</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -54,13 +73,13 @@ $articles = getArticles();
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link active">
+                            <a href="index.php" class="nav-link">
                                 <i class="nav-icon fas fa-newspaper"></i>
                                 <p>Artikel</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="categories.php" class="nav-link">
+                            <a href="categories.php" class="nav-link active">
                                 <i class="nav-icon fas fa-list"></i>
                                 <p>Kategori</p>
                             </a>
@@ -79,11 +98,11 @@ $articles = getArticles();
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Daftar Artikel</h1>
+                            <h1>Edit Kategori</h1>
                         </div>
                         <div class="col-sm-6">
-                            <a href="add_article.php" class="btn btn-primary float-right">
-                                <i class="fas fa-plus"></i> Tambah Artikel
+                            <a href="categories.php" class="btn btn-secondary float-right">
+                                <i class="fas fa-arrow-left"></i> Kembali
                             </a>
                         </div>
                     </div>
@@ -93,37 +112,21 @@ $articles = getArticles();
             <!-- Main content -->
             <section class="content">
                 <div class="container-fluid">
+                    <?php if (isset($error)): ?>
+                        <div class="alert alert-danger"><?php echo $error; ?></div>
+                    <?php endif; ?>
+
                     <div class="card">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Judul</th>
-                                            <th>Kategori</th>
-                                            <th>Tanggal</th>
-                                            <th width="150">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($article = mysqli_fetch_assoc($articles)): ?>
-                                        <tr>
-                                            <td><?php echo $article['title']; ?></td>
-                                            <td><?php echo $article['category_name']; ?></td>
-                                            <td><?php echo date('d/m/Y H:i', strtotime($article['created_at'])); ?></td>
-                                            <td>
-                                                <a href="edit_article.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus artikel ini?')">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label>Nama Kategori</label>
+                                    <input type="text" name="name" class="form-control" value="<?php echo $category['name']; ?>" required>
+                                </div>
+                                <button type="submit" name="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Simpan Perubahan
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

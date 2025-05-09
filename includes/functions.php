@@ -45,4 +45,11 @@ function getArticle($id) {
     $result = mysqli_query($conn, $query);
     return mysqli_fetch_assoc($result);
 }
+
+function getCategory($id) {
+    global $conn;
+    $query = "SELECT * FROM categories WHERE id = $id";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_assoc($result);
+}
 ?> 

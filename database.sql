@@ -29,4 +29,17 @@ CREATE TABLE IF NOT EXISTS articles (
 
 -- Insert admin default (username: admin, password: admin123)
 INSERT INTO admins (username, password) VALUES 
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'); 
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- Insert kategori default
+INSERT INTO categories (name) VALUES 
+('Berita'),
+('Teknologi'),
+('Olahraga'),
+('Kesehatan'),
+('Pendidikan'),
+('Bisnis'),
+('Hiburan'),
+('Politik'),
+('Lifestyle'),
+('Otomotif'); 

@@ -101,6 +101,30 @@ $categories = getCategories();
             <!-- Main content -->
             <section class="content">
                 <div class="container-fluid">
+                    <?php if (isset($_GET['success'])): ?>
+                        <div class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <h5><i class="icon fas fa-check"></i> Berhasil!</h5>
+                            <?php if ($_GET['success'] == 1): ?>
+                                Kategori berhasil diperbarui.
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (isset($_GET['error'])): ?>
+                        <div class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                            <?php if ($_GET['error'] == 'not_found'): ?>
+                                Kategori tidak ditemukan.
+                            <?php elseif ($_GET['error'] == 'category_in_use'): ?>
+                                Kategori tidak dapat dihapus karena masih digunakan oleh artikel.
+                            <?php else: ?>
+                                Terjadi kesalahan saat memproses permintaan.
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card">
@@ -135,6 +159,7 @@ $categories = getCategories();
                                             <thead>
                                                 <tr>
                                                     <th>Nama</th>
+                                                    <th>Dibuat</th>
                                                     <th width="150">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -142,11 +167,12 @@ $categories = getCategories();
                                                 <?php while ($category = mysqli_fetch_assoc($categories)): ?>
                                                 <tr>
                                                     <td><?php echo $category['name']; ?></td>
+                                                    <td><?php echo date('d/m/Y H:i', strtotime($category['created_at'])); ?></td>
                                                     <td>
-                                                        <a href="edit_category.php?id=<?php echo $category['id']; ?>" class="btn btn-warning btn-sm">
+                                                        <a href="edit_category.php?id=<?php echo $category['id']; ?>" class="btn btn-sm btn-info">
                                                             <i class="fas fa-edit"></i> Edit
                                                         </a>
-                                                        <a href="delete_category.php?id=<?php echo $category['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus kategori ini?')">
+                                                        <a href="delete_category.php?id=<?php echo $category['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
                                                             <i class="fas fa-trash"></i> Hapus
                                                         </a>
                                                     </td>

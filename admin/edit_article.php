@@ -3,14 +3,41 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
-$articles = getArticles();
+$id = (int)$_GET['id'];
+$article = getArticle($id);
+
+if (!$article) {
+    header("Location: index.php");
+    exit();
+}
+
+if (isset($_POST['submit'])) {
+    $title = sanitize($_POST['title']);
+    $content = sanitize($_POST['content']);
+    $category_id = (int)$_POST['category_id'];
+    
+    $query = "UPDATE articles SET 
+              title = '$title',
+              content = '$content',
+              category_id = $category_id
+              WHERE id = $id";
+    
+    if (mysqli_query($conn, $query)) {
+        header("Location: index.php");
+        exit();
+    } else {
+        $error = "Gagal mengupdate artikel: " . mysqli_error($conn);
+    }
+}
+
+$categories = getCategories();
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard Admin - CMS Sederhana</title>
+    <title>Edit Artikel - CMS Sederhana</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -18,6 +45,8 @@ $articles = getArticles();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <!-- Summernote -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs4.min.css">
 </head>
 <body class="hold-transition sidebar-mini">
     <div class="wrapper">
@@ -79,11 +108,11 @@ $articles = getArticles();
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Daftar Artikel</h1>
+                            <h1>Edit Artikel</h1>
                         </div>
                         <div class="col-sm-6">
-                            <a href="add_article.php" class="btn btn-primary float-right">
-                                <i class="fas fa-plus"></i> Tambah Artikel
+                            <a href="index.php" class="btn btn-secondary float-right">
+                                <i class="fas fa-arrow-left"></i> Kembali
                             </a>
                         </div>
                     </div>
@@ -93,37 +122,36 @@ $articles = getArticles();
             <!-- Main content -->
             <section class="content">
                 <div class="container-fluid">
+                    <?php if (isset($error)): ?>
+                        <div class="alert alert-danger"><?php echo $error; ?></div>
+                    <?php endif; ?>
+
                     <div class="card">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Judul</th>
-                                            <th>Kategori</th>
-                                            <th>Tanggal</th>
-                                            <th width="150">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php while ($article = mysqli_fetch_assoc($articles)): ?>
-                                        <tr>
-                                            <td><?php echo $article['title']; ?></td>
-                                            <td><?php echo $article['category_name']; ?></td>
-                                            <td><?php echo date('d/m/Y H:i', strtotime($article['created_at'])); ?></td>
-                                            <td>
-                                                <a href="edit_article.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus artikel ini?')">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </a>
-                                            </td>
-                                        </tr>
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label>Judul</label>
+                                    <input type="text" name="title" class="form-control" value="<?php echo $article['title']; ?>" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Kategori</label>
+                                    <select name="category_id" class="form-control" required>
+                                        <option value="">Pilih Kategori</option>
+                                        <?php while ($category = mysqli_fetch_assoc($categories)): ?>
+                                            <option value="<?php echo $category['id']; ?>" <?php echo ($category['id'] == $article['category_id']) ? 'selected' : ''; ?>>
+                                                <?php echo $category['name']; ?>
+                                            </option>
                                         <?php endwhile; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Konten</label>
+                                    <textarea name="content" id="summernote" required><?php echo $article['content']; ?></textarea>
+                                </div>
+                                <button type="submit" name="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Simpan Perubahan
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -145,5 +173,23 @@ $articles = getArticles();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <!-- Summernote -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#summernote').summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        });
+    </script>
 </body>
 </html> 
