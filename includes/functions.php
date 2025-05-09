@@ -24,12 +24,7 @@ function getAdmin($id) {
 function getCategories() {
     global $conn;
     $query = "SELECT * FROM categories ORDER BY name ASC";
-    $result = mysqli_query($conn, $query);
-    $categories = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $categories[] = $row;
-    }
-    return $categories;
+    return mysqli_query($conn, $query);
 }
 
 function getArticle($id) {
@@ -64,12 +59,7 @@ function getArticles($limit = null, $search = null) {
         $query .= " LIMIT $limit";
     }
     
-    $result = mysqli_query($conn, $query);
-    $articles = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $articles[] = $row;
-    }
-    return $articles;
+    return mysqli_query($conn, $query);
 }
 
 function getArticlesByCategory($category_id, $limit = null) {
@@ -86,12 +76,7 @@ function getArticlesByCategory($category_id, $limit = null) {
         $query .= " LIMIT $limit";
     }
     
-    $result = mysqli_query($conn, $query);
-    $articles = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-        $articles[] = $row;
-    }
-    return $articles;
+    return mysqli_query($conn, $query);
 }
 
 function addArticle($title, $content, $category_id) {

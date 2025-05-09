@@ -3,22 +3,19 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
-$search = isset($_GET['search']) ? $_GET['search'] : null;
-
-if (isset($_POST['submit'])) {
-    $name = sanitize($_POST['name']);
-    
-    $query = "INSERT INTO categories (name) VALUES ('$name')";
-    
-    if (mysqli_query($conn, $query)) {
-        header("Location: categories.php");
+// Hapus kategori
+if (isset($_GET['delete'])) {
+    $id = (int)$_GET['delete'];
+    if (deleteCategory($id)) {
+        header("Location: categories.php?success=1");
         exit();
     } else {
-        $error = "Gagal menambahkan kategori: " . mysqli_error($conn);
+        $error = "Gagal menghapus kategori: " . mysqli_error($conn);
     }
 }
 
-$categories = getCategories($search);
+// Ambil semua kategori
+$categories = getCategories();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -82,6 +79,12 @@ $categories = getCategories($search);
                                 <p>Kategori</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="../index.php" class="nav-link" target="_blank">
+                                <i class="nav-icon fas fa-home"></i>
+                                <p>Lihat Beranda</p>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -96,7 +99,12 @@ $categories = getCategories($search);
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Kategori</h1>
+                            <h1>Daftar Kategori</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href="add_category.php" class="btn btn-primary float-right">
+                                <i class="fas fa-plus"></i> Tambah Kategori
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -106,98 +114,51 @@ $categories = getCategories($search);
             <section class="content">
                 <div class="container-fluid">
                     <?php if (isset($_GET['success'])): ?>
-                        <div class="alert alert-success alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            <h5><i class="icon fas fa-check"></i> Berhasil!</h5>
-                            <?php if ($_GET['success'] == 1): ?>
-                                Kategori berhasil diperbarui.
-                            <?php endif; ?>
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <i class="fas fa-check-circle"></i> Kategori berhasil dihapus.
                         </div>
                     <?php endif; ?>
 
-                    <?php if (isset($_GET['error'])): ?>
-                        <div class="alert alert-danger alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            <h5><i class="icon fas fa-ban"></i> Error!</h5>
-                            <?php if ($_GET['error'] == 'not_found'): ?>
-                                Kategori tidak ditemukan.
-                            <?php elseif ($_GET['error'] == 'category_in_use'): ?>
-                                Kategori tidak dapat dihapus karena masih digunakan oleh artikel.
-                            <?php else: ?>
-                                Terjadi kesalahan saat memproses permintaan.
-                            <?php endif; ?>
+                    <?php if (isset($error)): ?>
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
                         </div>
                     <?php endif; ?>
 
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Tambah Kategori</h3>
-                                </div>
-                                <div class="card-body">
-                                    <?php if (isset($error)): ?>
-                                        <div class="alert alert-danger"><?php echo $error; ?></div>
-                                    <?php endif; ?>
-
-                                    <form method="POST">
-                                        <div class="form-group">
-                                            <label>Nama Kategori</label>
-                                            <input type="text" name="name" class="form-control" required>
-                                        </div>
-                                        <button type="submit" name="submit" class="btn btn-primary">
-                                            <i class="fas fa-save"></i> Simpan
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Daftar Kategori</h3>
-                                    <div class="card-tools">
-                                        <form method="GET" class="form-inline">
-                                            <div class="input-group">
-                                                <input type="text" name="search" class="form-control" placeholder="Cari kategori..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
-                                                <div class="input-group-append">
-                                                    <button type="submit" class="btn btn-primary">
-                                                        <i class="fas fa-search"></i> Cari
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-striped">
-                                            <thead>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Kategori</th>
+                                            <th width="150">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (mysqli_num_rows($categories) > 0): ?>
+                                            <?php while ($category = mysqli_fetch_assoc($categories)): ?>
                                                 <tr>
-                                                    <th>Nama</th>
-                                                    <th>Dibuat</th>
-                                                    <th width="150">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php while ($category = mysqli_fetch_assoc($categories)): ?>
-                                                <tr>
-                                                    <td><?php echo $category['name']; ?></td>
-                                                    <td><?php echo date('d/m/Y H:i', strtotime($category['created_at'])); ?></td>
+                                                    <td><?php echo htmlspecialchars($category['name']); ?></td>
                                                     <td>
                                                         <a href="edit_category.php?id=<?php echo $category['id']; ?>" class="btn btn-sm btn-info">
                                                             <i class="fas fa-edit"></i> Edit
                                                         </a>
-                                                        <a href="delete_category.php?id=<?php echo $category['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
+                                                        <a href="categories.php?delete=<?php echo $category['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
                                                             <i class="fas fa-trash"></i> Hapus
                                                         </a>
                                                     </td>
                                                 </tr>
-                                                <?php endwhile; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                                            <?php endwhile; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="2" class="text-center">Belum ada kategori.</td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

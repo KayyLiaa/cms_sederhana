@@ -3,15 +3,26 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
-$search = isset($_GET['search']) ? $_GET['search'] : null;
-$articles = getArticles(null, $search);
+// Hapus artikel
+if (isset($_GET['delete'])) {
+    $id = (int)$_GET['delete'];
+    if (deleteArticle($id)) {
+        header("Location: index.php?success=1");
+        exit();
+    } else {
+        $error = "Gagal menghapus artikel: " . mysqli_error($conn);
+    }
+}
+
+// Ambil semua artikel
+$articles = getArticles();
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard Admin - CMS Sederhana</title>
+    <title>Artikel - CMS Sederhana</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -30,6 +41,11 @@ $articles = getArticles(null, $search);
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../index.php" target="_blank">
+                        <i class="fas fa-home"></i> Lihat Beranda
+                    </a>
                 </li>
             </ul>
 
@@ -68,6 +84,12 @@ $articles = getArticles(null, $search);
                                 <p>Kategori</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="../index.php" class="nav-link" target="_blank">
+                                <i class="nav-icon fas fa-home"></i>
+                                <p>Lihat Beranda</p>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -96,19 +118,21 @@ $articles = getArticles(null, $search);
             <!-- Main content -->
             <section class="content">
                 <div class="container-fluid">
-                    <div class="card">
-                        <div class="card-header">
-                            <form method="GET" class="form-inline">
-                                <div class="input-group">
-                                    <input type="text" name="search" class="form-control" placeholder="Cari artikel..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
-                                    <div class="input-group-append">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-search"></i> Cari
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                    <?php if (isset($_GET['success'])): ?>
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <i class="fas fa-check-circle"></i> Artikel berhasil dihapus.
                         </div>
+                    <?php endif; ?>
+
+                    <?php if (isset($error)): ?>
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">
@@ -116,26 +140,32 @@ $articles = getArticles(null, $search);
                                         <tr>
                                             <th>Judul</th>
                                             <th>Kategori</th>
-                                            <th>Tanggal</th>
+                                            <th>Tanggal Dibuat</th>
                                             <th width="150">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php while ($article = mysqli_fetch_assoc($articles)): ?>
-                                        <tr>
-                                            <td><?php echo $article['title']; ?></td>
-                                            <td><?php echo $article['category_name']; ?></td>
-                                            <td><?php echo date('d/m/Y H:i', strtotime($article['created_at'])); ?></td>
-                                            <td>
-                                                <a href="edit_article.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <a href="delete_article.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus artikel ini?')">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <?php endwhile; ?>
+                                        <?php if (mysqli_num_rows($articles) > 0): ?>
+                                            <?php while ($article = mysqli_fetch_assoc($articles)): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($article['title']); ?></td>
+                                                    <td><?php echo htmlspecialchars($article['category_name'] ?? 'Tanpa Kategori'); ?></td>
+                                                    <td><?php echo date('d/m/Y H:i', strtotime($article['created_at'])); ?></td>
+                                                    <td>
+                                                        <a href="edit_article.php?id=<?php echo $article['id']; ?>" class="btn btn-sm btn-info">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </a>
+                                                        <a href="index.php?delete=<?php echo $article['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus artikel ini?')">
+                                                            <i class="fas fa-trash"></i> Hapus
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endwhile; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="4" class="text-center">Belum ada artikel.</td>
+                                            </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
