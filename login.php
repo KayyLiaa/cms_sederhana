@@ -13,7 +13,7 @@ if (isset($_POST['login'])) {
         $error = "Username dan password harus diisi";
     } else {
         // Cek username
-        $query = "SELECT * FROM users WHERE username = '$username'";
+        $query = "SELECT * FROM admins WHERE username = '$username'";
         $result = mysqli_query($conn, $query);
 
         if ($result && mysqli_num_rows($result) > 0) {

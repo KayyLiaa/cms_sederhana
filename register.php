@@ -20,13 +20,13 @@ if (isset($_POST['register'])) {
         $error = "Konfirmasi password tidak sama.";
     } else {
         // Cek username/email unik
-        $query = "SELECT id FROM users WHERE username = '$username' OR email = '$email'";
+        $query = "SELECT id FROM admins WHERE username = '$username'";
         $result = mysqli_query($conn, $query);
         if ($result && mysqli_num_rows($result) > 0) {
             $error = "Username atau email sudah terdaftar.";
         } else {
             $hashed = password_hash($password, PASSWORD_DEFAULT);
-            $query = "INSERT INTO users (username, email, password, created_at) VALUES ('$username', '$email', '$hashed', NOW())";
+            $query = "INSERT INTO admins (username, password, created_at) VALUES ('$username', '$hashed', NOW())";
             if (mysqli_query($conn, $query)) {
                 $success = "Akun berhasil dibuat. Silakan login.";
             } else {
