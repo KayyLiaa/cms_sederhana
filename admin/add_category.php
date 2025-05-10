@@ -3,25 +3,15 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$query = "SELECT * FROM categories WHERE id = $id";
-$result = mysqli_query($conn, $query);
-$category = mysqli_fetch_assoc($result);
-
-if (!$category) {
-    header("Location: categories.php");
-    exit();
-}
-
 $error = '';
 if (isset($_POST['submit'])) {
     $name = sanitize($_POST['name']);
     if (!empty($name)) {
-        if (updateCategory($id, $name)) {
+        if (addCategory($name)) {
             header("Location: categories.php?success=1");
             exit();
         } else {
-            $error = "Gagal mengupdate kategori: " . mysqli_error($conn);
+            $error = "Gagal menambah kategori: " . mysqli_error($conn);
         }
     } else {
         $error = "Nama kategori tidak boleh kosong.";
@@ -32,7 +22,7 @@ if (isset($_POST['submit'])) {
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <title>Edit Kategori</title>
+    <title>Tambah Kategori</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
@@ -90,8 +80,8 @@ if (isset($_POST['submit'])) {
 <div class="centered-card">
     <div class="card" style="width: 100%; max-width: 420px;">
         <div class="card-header">
-            <i class="fas fa-edit icon-category"></i><br>
-            Edit Kategori
+            <i class="fas fa-folder-plus icon-category"></i><br>
+            Tambah Kategori Baru
         </div>
         <div class="card-body">
             <?php if ($error): ?>
@@ -103,7 +93,7 @@ if (isset($_POST['submit'])) {
             <form method="POST">
                 <div class="form-group">
                     <label for="name"><i class="fas fa-tag"></i> Nama Kategori</label>
-                    <input type="text" name="name" id="name" class="form-control" value="<?php echo htmlspecialchars($category['name']); ?>" required autofocus>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Masukkan nama kategori" required autofocus>
                 </div>
                 <div class="d-flex justify-content-between">
                     <a href="categories.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>

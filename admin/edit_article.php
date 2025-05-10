@@ -3,8 +3,10 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 checkLogin();
 
-$id = (int)$_GET['id'];
-$article = getArticle($id);
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$query = "SELECT * FROM articles WHERE id = $id";
+$result = mysqli_query($conn, $query);
+$article = mysqli_fetch_assoc($result);
 
 if (!$article) {
     header("Location: index.php");
@@ -15,13 +17,8 @@ if (isset($_POST['submit'])) {
     $title = sanitize($_POST['title']);
     $content = sanitize($_POST['content']);
     $category_id = (int)$_POST['category_id'];
-    
-    $query = "UPDATE articles SET 
-              title = '$title',
-              content = '$content',
-              category_id = $category_id
-              WHERE id = $id";
-    
+
+    $query = "UPDATE articles SET title='$title', content='$content', category_id=$category_id WHERE id=$id";
     if (mysqli_query($conn, $query)) {
         header("Location: index.php");
         exit();

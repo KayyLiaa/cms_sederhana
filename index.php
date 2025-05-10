@@ -250,7 +250,11 @@ foreach ($categories as $category) {
                     <?php foreach ($latest_articles as $article): ?>
                         <div class="col-md-4">
                             <div class="article-card">
-                                <img src="https://source.unsplash.com/random/800x600/?news" class="article-image w-100" alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                <?php if (!empty($article['image'])): ?>
+                                    <img src="uploads/<?php echo htmlspecialchars($article['image']); ?>" class="article-image w-100" alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                <?php else: ?>
+                                    <img src="https://source.unsplash.com/random/800x600/?news" class="article-image w-100" alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                <?php endif; ?>
                                 <div class="article-content">
                                     <h3 class="article-title"><?php echo htmlspecialchars($article['title']); ?></h3>
                                     <div class="article-meta">
@@ -284,7 +288,11 @@ foreach ($categories as $category) {
                         <?php foreach ($articles as $article): ?>
                             <div class="col-md-4">
                                 <div class="article-card">
-                                    <img src="https://source.unsplash.com/random/800x600/?<?php echo urlencode($category_name); ?>" class="article-image w-100" alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                    <?php if (!empty($article['image'])): ?>
+                                        <img src="uploads/<?php echo htmlspecialchars($article['image']); ?>" class="article-image w-100" alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                    <?php else: ?>
+                                        <img src="https://source.unsplash.com/random/800x600/?<?php echo urlencode($category_name); ?>" class="article-image w-100" alt="<?php echo htmlspecialchars($article['title']); ?>">
+                                    <?php endif; ?>
                                     <div class="article-content">
                                         <h3 class="article-title"><?php echo htmlspecialchars($article['title']); ?></h3>
                                         <div class="article-meta">
