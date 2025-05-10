@@ -2,24 +2,37 @@
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 
+$error = '';
+
 if (isset($_POST['login'])) {
     $username = sanitize($_POST['username']);
     $password = $_POST['password'];
-    
-    $query = "SELECT * FROM admins WHERE username = '$username'";
-    $result = mysqli_query($conn, $query);
-    
-    if (mysqli_num_rows($result) == 1) {
-        $admin = mysqli_fetch_assoc($result);
-        if (password_verify($password, $admin['password'])) {
-            $_SESSION['admin_id'] = $admin['id'];
-            $_SESSION['admin_username'] = $admin['username'];
-            header("Location: admin/index.php");
-            exit();
+
+    // Validasi input
+    if (empty($username) || empty($password)) {
+        $error = "Username dan password harus diisi";
+    } else {
+        // Cek username
+        $query = "SELECT * FROM users WHERE username = '$username'";
+        $result = mysqli_query($conn, $query);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
+            // Verifikasi password
+            if (password_verify($password, $user['password'])) {
+                // Set session user
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_username'] = $user['username'];
+                // Redirect ke halaman utama user
+                header("Location: index.php");
+                exit();
+            } else {
+                $error = "Password salah";
+            }
+        } else {
+            $error = "Username tidak ditemukan";
         }
     }
-    
-    $error = "Username atau password salah!";
 }
 ?>
 <!DOCTYPE html>
@@ -27,71 +40,186 @@ if (isset($_POST['login'])) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login Admin - CMS Sederhana</title>
-
+    <title>Sign In - CMS Sederhana</title>
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/icheck-bootstrap/3.0.1/icheck-bootstrap.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --primary-color: #FFD700;
+            --secondary-color: #808080;
+            --light-color: #FFFFFF;
+            --dark-color: #333333;
+        }
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://source.unsplash.com/random/1920x1080/?office') center/cover;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .row {
+            width: 100%;
+            margin: 0;
+        }
+        .col-md-6 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .login-box {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-logo h1 {
+            color: var(--dark-color);
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        .login-logo p {
+            color: var(--secondary-color);
+            margin: 10px 0 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            border-radius: 5px;
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+        }
+        .btn-login {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 5px;
+            color: var(--dark-color);
+            font-weight: bold;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn-login:hover {
+            background-color: #e6c200;
+            transform: translateY(-2px);
+        }
+        .alert {
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-to-home {
+            color: var(--light-color);
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-to-home a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-to-home a:hover {
+            text-decoration: underline;
+        }
+        .input-group-text {
+            background-color: transparent;
+            border-right: none;
+        }
+        .form-control {
+            border-left: none;
+        }
+        .input-group .form-control:focus {
+            border-color: #ddd;
+            box-shadow: none;
+        }
+        .input-group:focus-within {
+            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+        }
+        .input-group:focus-within .input-group-text,
+        .input-group:focus-within .form-control {
+            border-color: var(--primary-color);
+        }
+    </style>
 </head>
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <a href="index.php"><b>CMS</b> Sederhana</a>
-        </div>
-        <!-- /.login-logo -->
-        <div class="card">
-            <div class="card-body login-card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
-
-                <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-                <?php endif; ?>
-
-                <?php if (isset($error)): ?>
-                    <div class="alert alert-danger"><?php echo $error; ?></div>
-                <?php endif; ?>
-
-                <form method="POST">
-                    <div class="input-group mb-3">
-                        <input type="text" name="username" class="form-control" placeholder="Username" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-user"></span>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="login-box">
+                    <div class="login-logo">
+                        <h1>CMS Sederhana</h1>
+                        <p>Silakan sign in untuk melanjutkan</p>
+                    </div>
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
+                        </div>
+                    <?php endif; ?>
+                    <form method="POST" action="">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                </div>
+                                <input type="text" name="username" class="form-control" placeholder="Username" required>
                             </div>
                         </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control" placeholder="Password" required>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </div>
+                                <input type="password" name="password" class="form-control" placeholder="Password" required>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <button type="submit" name="login" class="btn btn-primary btn-block">Sign In</button>
-                        </div>
-                    </div>
-                </form>
-
-                <p class="mb-0 mt-3">
-                    <a href="register.php" class="text-center">Register admin baru</a>
-                </p>
+                        <button type="submit" name="login" class="btn btn-login">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                    </form>
+                </div>
+                <div class="back-to-home">
+                    <a href="index.php">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+                    </a>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="register.php">Buat Akun Baru</a>
+                </div>
             </div>
         </div>
     </div>
-
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap 4 -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 </body>
 </html> 

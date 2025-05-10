@@ -2,11 +2,11 @@
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 
-// Cek jika sudah login
-if (isset($_SESSION['admin_id'])) {
-    header("Location: index.php");
-    exit();
-}
+// Dihapus: redirect jika sudah login
+// if (isset($_SESSION['admin_id'])) {
+//     header("Location: index.php");
+//     exit();
+// }
 
 $error = '';
 
@@ -250,6 +250,9 @@ if (isset($_POST['login'])) {
                     <a href="../index.php">
                         <i class="fas fa-arrow-left"></i> Kembali ke Beranda
                     </a>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="../register.php">Belum punya akun? Register</a>
                 </div>
             </div>
         </div>

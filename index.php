@@ -225,9 +225,6 @@ foreach ($categories as $category) {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Beranda</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="admin/login.php">Login</a>
                     </li>
                 </ul>

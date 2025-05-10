@@ -42,11 +42,6 @@ $articles = getArticles();
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="../index.php" target="_blank">
-                        <i class="fas fa-home"></i> Lihat Beranda
-                    </a>
-                </li>
             </ul>
 
             <!-- Right navbar links -->
